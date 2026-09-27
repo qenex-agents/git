@@ -1,0 +1,113 @@
+# readme-lint v2
+name: ReadMe Docs Lint
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+  packages: read
+
+jobs:
+  lint:
+    name: Lint docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fix PR base branch
+        id: fix-base
+        if: github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'master'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const head = context.payload.pull_request.head.ref;
+            const match = head.match(/^(v\d+(?:\.\d+)*)/);
+            if (!match) return;
+
+            const versionBranch = match[1];
+
+            try {
+              await github.rest.repos.getBranch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                branch: versionBranch,
+              });
+            } catch {
+              return;
+            }
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              base: versionBranch,
+            });
+
+            core.setOutput('changed', 'true');
+            core.setOutput('new_base', versionBranch);
+            core.setOutput('old_base', context.payload.pull_request.base.ref);
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+
+      - name: Lint docs
+        id: lint
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: npx -y @readme/cli --no-check lint --github > comment.md
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- readme-lint-results -->';
+            let body = '';
+            try { body = fs.readFileSync('comment.md', 'utf-8'); } catch {}
+            if (!body.includes(marker)) return;
+
+            const baseChanged = '${{ steps.fix-base.outputs.changed }}' === 'true';
+            if (baseChanged) {
+              const oldBase = '${{ steps.fix-base.outputs.old_base }}';
+              const newBase = '${{ steps.fix-base.outputs.new_base }}';
+              body = body.replace('---', `> **Base branch updated:** This PR was targeting \`${oldBase}\` but has been updated to target \`${newBase}\`.\n\n---`);
+            }
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+
+      - name: Fail if lint errors
+        if: steps.lint.outcome == 'failure'
+        run: exit 1
