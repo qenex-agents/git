@@ -1,0 +1,4 @@
+---
+title: inventory
+hidden: false
+---

@@ -1,0 +1,876 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "GitBook Petstore API",
+    "version": "1.0.0",
+    "description": "# Welcome to the GitBook Petstore API\n\nThis GitBook API documentation template serves as a starting point for creating clear, interactive, and user-friendly API documentation.\n\nUse this template to explore best practices in structuring your docs, showcasing endpoints, and guiding users through your API. Everything here can be adapted to fit your own product.\n\n### How this demo works\n\nThis reference is automatically generated from an OpenAPI spec uploaded to this GitBook space. GitBook reads the spec and creates a page for each tag, with interactive endpoint blocks for every operation — no manual authoring required.\n\nA few things worth noticing as you explore:\n\n- **Page groups** — tags with no endpoints (like *Store* and *Pets*) become navigation sections automatically, keeping related endpoints grouped without any extra configuration.\n- **Auto-split pages** — `##` headings inside `info.description` are automatically split into separate pages in the navigation, which is how this welcome section is structured.\n- **Stability badges** — some endpoints are marked `experimental` or `beta` using the `x-stability` extension. You'll see these highlighted on the endpoint itself.\n- **Deprecation warnings** — `GET /pets/{petId}` is marked deprecated with a sunset date, surfaced as a warning banner on that endpoint's page.\n- **Code samples** — each endpoint includes hand-written examples in cURL, JavaScript, and Python via `x-codeSamples`, supplementing the auto-generated snippets.\n- **Try it panel** — most endpoints have a live testing panel on the right. `GET /store/orders` has it disabled via `x-hideTryItPanel` to show that control is per-endpoint.\n\nTo use this template for your own API, replace the spec with your own OpenAPI file and adjust the `info.description` to match your product.\n\n## Servers & Authentication\n\n### Servers\n\n{% tabs %}\n{% tab title=\"Production\" %}\n**Base URL**\n`https://petstore.example.com/v1`\n{% endtab %}\n\n{% tab title=\"Staging\" %}\n**Base URL**\n`https://staging.petstore.example.com/v1`\n{% endtab %}\n{% endtabs %}\n\n{% hint style=\"info\" %}\nBoth servers are available in the **Try it** panel on each endpoint page. Use the server switcher in the top-right of the panel to toggle between Production and Staging without leaving the docs.\n{% endhint %}\n\n### Authentication\n\nAll requests must include your API key in the `Authorization` header:\n\n```\nAuthorization: Bearer YOUR_API_KEY\n```\n\n{% hint style=\"info\" %}\nGenerate an API key from your [account dashboard](https://petstore.example.com/dashboard/keys). Keys are scoped to a single workspace.\n{% endhint %}\n\n## Getting started\n\n{% stepper %}\n{% step %}\n## Create an account\nSign up at [petstore.example.com](https://petstore.example.com) — it's free.\n{% endstep %}\n\n{% step %}\n## Get your API key\nHead to your dashboard and copy your key from the **API Keys** section.\n{% endstep %}\n\n{% step %}\n## Make your first request\nCall `GET /pets` to verify connectivity and see available pets.\n{% endstep %}\n{% endstepper %}\n\n## Error responses\n\nAll errors follow a consistent structure:\n\n```json\n{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"The requested resource could not be found.\",\n    \"status\": 404\n  }\n}\n```\n\n| Status | Meaning |\n|--------|---------|\n| `400` | Bad request — check your request body |\n| `401` | Unauthorized — missing or invalid API key |\n| `403` | Forbidden — insufficient permissions |\n| `404` | Not found |\n| `429` | Rate limited — back off and retry |\n| `500` | Server error |\n\n{% hint style=\"warning\" %}\nThis API is for demo purposes only — **don't** use it in production.\n{% endhint %}\n"
+  },
+  "servers": [
+    {
+      "url": "https://petstore.example.com/v1",
+      "description": "Production"
+    },
+    {
+      "url": "https://staging.petstore.example.com/v1",
+      "description": "Staging"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "store",
+      "x-page-title": "Store",
+      "x-page-icon": "store"
+    },
+    {
+      "name": "orders",
+      "x-parent": "store",
+      "x-page-title": "Orders",
+      "x-page-description": "Place and manage customer orders.",
+      "x-page-icon": "bag-shopping"
+    },
+    {
+      "name": "inventory",
+      "x-parent": "store",
+      "x-page-title": "Inventory",
+      "x-page-description": "Track and update stock levels for pets in the store.",
+      "x-page-icon": "boxes-stacked"
+    },
+    {
+      "name": "pets",
+      "x-page-title": "Pets",
+      "x-page-icon": "paw"
+    },
+    {
+      "name": "animals",
+      "x-parent": "pets",
+      "x-page-title": "Animals",
+      "x-page-description": "Browse and manage individual animals available for adoption.",
+      "x-page-icon": "dog"
+    },
+    {
+      "name": "categories",
+      "x-parent": "pets",
+      "x-page-title": "Categories",
+      "x-page-description": "Manage the species and breed categories used to classify pets.",
+      "x-page-icon": "tag"
+    },
+    {
+      "name": "admin",
+      "x-page-title": "Admin",
+      "x-page-description": "Internal administration endpoints.",
+      "x-page-icon": "shield-halved"
+    }
+  ],
+  "paths": {
+    "/store/orders": {
+      "get": {
+        "summary": "List orders",
+        "description": "Returns all orders placed in the store. Does not currently support filtering or pagination.\n\n{% hint style=\"info\" %}\nFiltering and pagination are planned for v2. Subscribe to the [changelog](https://petstore.example.com/changelog) for updates.\n{% endhint %}\n",
+        "tags": [
+          "orders"
+        ],
+        "operationId": "listOrders",
+        "responses": {
+          "200": {
+            "description": "An array of orders.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Order"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "x-hideTryItPanel": true,
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "CLI",
+            "source": "curl -L https://petstore.example.com/v1/store/orders \\\n  -H 'Authorization: Bearer YOUR_API_KEY'\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Fetch",
+            "source": "const response = await fetch('https://petstore.example.com/v1/store/orders', {\n  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }\n});\nconst orders = await response.json();\n"
+          },
+          {
+            "lang": "Python",
+            "label": "Python",
+            "source": "import requests\nr = requests.get(\n    'https://petstore.example.com/v1/store/orders',\n    headers={'Authorization': 'Bearer YOUR_API_KEY'}\n)\nprint(r.json())\n"
+          }
+        ]
+      }
+    },
+    "/store/orders/{orderId}": {
+      "delete": {
+        "summary": "Cancel an order",
+        "description": "Cancels an order by ID. Only orders with a status of `pending` can be cancelled — orders that have already shipped cannot be reversed.",
+        "tags": [
+          "orders"
+        ],
+        "operationId": "cancelOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the order to cancel.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Order cancelled successfully."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "description": "Order cannot be cancelled — it has already shipped."
+          }
+        },
+        "x-stability": "beta",
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "CLI",
+            "source": "curl -L -X DELETE https://petstore.example.com/v1/store/orders/42 \\\n  -H 'Authorization: Bearer YOUR_API_KEY'\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Fetch",
+            "source": "await fetch('https://petstore.example.com/v1/store/orders/42', {\n  method: 'DELETE',\n  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }\n});\n"
+          },
+          {
+            "lang": "Python",
+            "label": "Python",
+            "source": "import requests\nrequests.delete(\n    'https://petstore.example.com/v1/store/orders/42',\n    headers={'Authorization': 'Bearer YOUR_API_KEY'}\n)\n"
+          }
+        ]
+      }
+    },
+    "/inventory": {
+      "get": {
+        "summary": "List inventory",
+        "description": "Returns current stock levels for all pets in the store.",
+        "tags": [
+          "inventory"
+        ],
+        "operationId": "listInventory",
+        "responses": {
+          "200": {
+            "description": "An array of inventory entries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InventoryItem"
+                  }
+                },
+                "example": [
+                  {
+                    "petId": 1,
+                    "quantity": 3,
+                    "status": "available"
+                  },
+                  {
+                    "petId": 2,
+                    "quantity": 0,
+                    "status": "sold"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "CLI",
+            "source": "curl -L https://petstore.example.com/v1/inventory \\\n  -H 'Authorization: Bearer YOUR_API_KEY'\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Fetch",
+            "source": "const response = await fetch('https://petstore.example.com/v1/inventory', {\n  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }\n});\nconst inventory = await response.json();\n"
+          },
+          {
+            "lang": "Python",
+            "label": "Python",
+            "source": "import requests\nr = requests.get(\n    'https://petstore.example.com/v1/inventory',\n    headers={'Authorization': 'Bearer YOUR_API_KEY'}\n)\nprint(r.json())\n"
+          }
+        ]
+      }
+    },
+    "/inventory/{petId}": {
+      "patch": {
+        "summary": "Update stock level",
+        "description": "Updates the stock quantity for a specific pet. Use this to record new arrivals, returns, or manual adjustments.\n\n{% hint style=\"warning\" %}\nThis endpoint is **experimental** — the request shape may change before it reaches stable.\n{% endhint %}\n",
+        "tags": [
+          "inventory"
+        ],
+        "operationId": "updateInventory",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the pet to update stock for.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryUpdate"
+              },
+              "example": {
+                "quantity": 5
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated inventory entry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryItem"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "x-stability": "experimental",
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "CLI",
+            "source": "curl -L -X PATCH https://petstore.example.com/v1/inventory/1 \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"quantity\": 5}'\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Fetch",
+            "source": "const response = await fetch('https://petstore.example.com/v1/inventory/1', {\n  method: 'PATCH',\n  headers: {\n    'Authorization': 'Bearer YOUR_API_KEY',\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({ quantity: 5 })\n});\nconst item = await response.json();\n"
+          },
+          {
+            "lang": "Python",
+            "label": "Python",
+            "source": "import requests\nr = requests.patch(\n    'https://petstore.example.com/v1/inventory/1',\n    headers={'Authorization': 'Bearer YOUR_API_KEY'},\n    json={'quantity': 5}\n)\nprint(r.json())\n"
+          }
+        ]
+      }
+    },
+    "/pets": {
+      "get": {
+        "summary": "List all animals",
+        "description": "Returns a paginated list of all animals in the store. Use `limit` to control page size and `status` to filter by availability.",
+        "tags": [
+          "animals"
+        ],
+        "operationId": "listPets",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of animals to return. Defaults to 20, max 100.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by availability status.",
+            "schema": {
+              "$ref": "#/components/schemas/PetStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paginated list of animals.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pets"
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "name": "Fluffy",
+                    "categoryId": 1,
+                    "status": "available"
+                  },
+                  {
+                    "id": 2,
+                    "name": "Whiskers",
+                    "categoryId": 2,
+                    "status": "pending"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "CLI",
+            "source": "curl -L https://petstore.example.com/v1/pets \\\n  -H 'Authorization: Bearer YOUR_API_KEY'\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Fetch",
+            "source": "const response = await fetch('https://petstore.example.com/v1/pets', {\n  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }\n});\nconst pets = await response.json();\n"
+          },
+          {
+            "lang": "Python",
+            "label": "Python",
+            "source": "import requests\nr = requests.get(\n    'https://petstore.example.com/v1/pets',\n    headers={'Authorization': 'Bearer YOUR_API_KEY'}\n)\nprint(r.json())\n"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add an animal",
+        "description": "Adds a new animal to the store. The `name` and `categoryId` fields are required.",
+        "tags": [
+          "animals"
+        ],
+        "operationId": "createPet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewPet"
+              },
+              "example": {
+                "name": "Goldie",
+                "categoryId": 3,
+                "status": "available"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Animal added successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "CLI",
+            "source": "curl -L -X POST https://petstore.example.com/v1/pets \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\": \"Goldie\", \"categoryId\": 3, \"status\": \"available\"}'\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Fetch",
+            "source": "const response = await fetch('https://petstore.example.com/v1/pets', {\n  method: 'POST',\n  headers: {\n    'Authorization': 'Bearer YOUR_API_KEY',\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({ name: 'Goldie', categoryId: 3, status: 'available' })\n});\nconst pet = await response.json();\n"
+          },
+          {
+            "lang": "Python",
+            "label": "Python",
+            "source": "import requests\nr = requests.post(\n    'https://petstore.example.com/v1/pets',\n    headers={'Authorization': 'Bearer YOUR_API_KEY'},\n    json={'name': 'Goldie', 'categoryId': 3, 'status': 'available'}\n)\nprint(r.json())\n"
+          }
+        ]
+      }
+    },
+    "/pets/{petId}": {
+      "get": {
+        "summary": "Get an animal",
+        "description": "Returns details for a single animal by ID.\n\n{% hint style=\"danger\" %}\n**This endpoint is deprecated** and will be removed on **5 December 2030**. Use `GET /pets` with a `status` filter instead.\n{% endhint %}\n",
+        "tags": [
+          "animals"
+        ],
+        "operationId": "getPet",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the animal to retrieve.",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested animal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pet"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "deprecated": true,
+        "x-deprecated-sunset": "2030-12-05",
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "CLI",
+            "source": "curl -L https://petstore.example.com/v1/pets/1 \\\n  -H 'Authorization: Bearer YOUR_API_KEY'\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Fetch",
+            "source": "const response = await fetch('https://petstore.example.com/v1/pets/1', {\n  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }\n});\nconst pet = await response.json();\n"
+          },
+          {
+            "lang": "Python",
+            "label": "Python",
+            "source": "import requests\nr = requests.get(\n    'https://petstore.example.com/v1/pets/1',\n    headers={'Authorization': 'Bearer YOUR_API_KEY'}\n)\nprint(r.json())\n"
+          }
+        ]
+      }
+    },
+    "/categories": {
+      "get": {
+        "summary": "List categories",
+        "description": "Returns all categories available for classifying pets (e.g. dog, cat, rabbit).",
+        "tags": [
+          "categories"
+        ],
+        "operationId": "listCategories",
+        "responses": {
+          "200": {
+            "description": "An array of categories.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                },
+                "example": [
+                  {
+                    "id": 1,
+                    "name": "Dog",
+                    "description": "Domestic dogs of all breeds."
+                  },
+                  {
+                    "id": 2,
+                    "name": "Cat",
+                    "description": "Domestic cats of all breeds."
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "CLI",
+            "source": "curl -L https://petstore.example.com/v1/categories \\\n  -H 'Authorization: Bearer YOUR_API_KEY'\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Fetch",
+            "source": "const response = await fetch('https://petstore.example.com/v1/categories', {\n  headers: { 'Authorization': 'Bearer YOUR_API_KEY' }\n});\nconst categories = await response.json();\n"
+          },
+          {
+            "lang": "Python",
+            "label": "Python",
+            "source": "import requests\nr = requests.get(\n    'https://petstore.example.com/v1/categories',\n    headers={'Authorization': 'Bearer YOUR_API_KEY'}\n)\nprint(r.json())\n"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create a category",
+        "description": "Adds a new category for classifying pets.",
+        "tags": [
+          "categories"
+        ],
+        "operationId": "createCategory",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewCategory"
+              },
+              "example": {
+                "name": "Rabbit",
+                "description": "Domestic rabbits of all breeds."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "CLI",
+            "source": "curl -L -X POST https://petstore.example.com/v1/categories \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\": \"Rabbit\", \"description\": \"Domestic rabbits of all breeds.\"}'\n"
+          },
+          {
+            "lang": "JavaScript",
+            "label": "Fetch",
+            "source": "const response = await fetch('https://petstore.example.com/v1/categories', {\n  method: 'POST',\n  headers: {\n    'Authorization': 'Bearer YOUR_API_KEY',\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({ name: 'Rabbit', description: 'Domestic rabbits of all breeds.' })\n});\nconst category = await response.json();\n"
+          },
+          {
+            "lang": "Python",
+            "label": "Python",
+            "source": "import requests\nr = requests.post(\n    'https://petstore.example.com/v1/categories',\n    headers={'Authorization': 'Bearer YOUR_API_KEY'},\n    json={'name': 'Rabbit', 'description': 'Domestic rabbits of all breeds.'}\n)\nprint(r.json())\n"
+          }
+        ]
+      }
+    },
+    "/internal/metrics": {
+      "get": {
+        "summary": "Platform metrics",
+        "description": "Returns internal platform metrics. Not available to external callers.",
+        "tags": [
+          "admin"
+        ],
+        "operationId": "getMetrics",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-internal": true
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Pass your API key as a Bearer token in the `Authorization` header."
+      }
+    },
+    "schemas": {
+      "PetStatus": {
+        "type": "string",
+        "enum": [
+          "available",
+          "pending",
+          "sold"
+        ],
+        "x-enumDescriptions": {
+          "available": "The animal is available for adoption.",
+          "pending": "An adoption is in progress — the animal is not available to others.",
+          "sold": "The animal has been adopted and is no longer available."
+        }
+      },
+      "NewPet": {
+        "type": "object",
+        "required": [
+          "name",
+          "categoryId"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Fluffy",
+            "description": "The animal's name."
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "description": "The ID of the category this animal belongs to."
+          },
+          "status": {
+            "$ref": "#/components/schemas/PetStatus"
+          }
+        }
+      },
+      "Pet": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/NewPet"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "example": 1,
+                "description": "Unique identifier assigned on creation."
+              }
+            }
+          }
+        ]
+      },
+      "Pets": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/Pet"
+        }
+      },
+      "NewCategory": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Dog",
+            "description": "The category name (e.g. Dog, Cat, Rabbit)."
+          },
+          "description": {
+            "type": "string",
+            "example": "Domestic dogs of all breeds.",
+            "description": "A short description of the category."
+          }
+        }
+      },
+      "Category": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/NewCategory"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "example": 1,
+                "description": "Unique identifier assigned on creation."
+              }
+            }
+          }
+        ]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Unique order identifier."
+          },
+          "petId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The ID of the animal in this order."
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Number of units ordered."
+          },
+          "shipDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Expected or actual ship date in ISO 8601 format."
+          },
+          "complete": {
+            "type": "boolean",
+            "description": "Whether the order has been fulfilled."
+          }
+        }
+      },
+      "InventoryItem": {
+        "type": "object",
+        "required": [
+          "petId",
+          "quantity",
+          "status"
+        ],
+        "properties": {
+          "petId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The ID of the animal this entry tracks.",
+            "example": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Current stock count.",
+            "example": 3
+          },
+          "status": {
+            "$ref": "#/components/schemas/PetStatus"
+          }
+        }
+      },
+      "InventoryUpdate": {
+        "type": "object",
+        "required": [
+          "quantity"
+        ],
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "description": "The new stock count.",
+            "example": 5
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "status"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "A machine-readable error code.",
+            "example": "not_found"
+          },
+          "message": {
+            "type": "string",
+            "description": "A human-readable description of the error.",
+            "example": "The requested resource could not be found."
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code.",
+            "example": 404
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid API key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "unauthorized",
+              "message": "A valid API key is required.",
+              "status": 401
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "The requested resource could not be found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "not_found",
+              "message": "The requested resource could not be found.",
+              "status": 404
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "The request body is missing required fields or contains invalid values.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "code": "bad_request",
+              "message": "The 'name' field is required.",
+              "status": 400
+            }
+          }
+        }
+      }
+    }
+  }
+}
